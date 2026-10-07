@@ -23,10 +23,6 @@ for message in st.session_state['message_history']:
         st.text(message['content'])
 
 
-
-
-
-
 user_input = st.chat_input("Ask Anything:")
 
 if user_input:
@@ -38,14 +34,24 @@ if user_input:
     with st.chat_message("user"):
         st.text(user_input)
 
-    # Get response from chatbot
-    response = chatbot.invoke({'messages': [HumanMessage(content=user_input)]}, config=CONFIG)
+    # # Get response from chatbot
+    # response = chatbot.invoke({'messages': [HumanMessage(content=user_input)]}, config=CONFIG)
 
-    ai_message = response['messages'][-1].content
+    # ai_message = response['messages'][-1].content
 
-    #first add the msg to the msg history
-    st.session_state['message_history'].append({"role": "assistant", "content": ai_message})
+    # #first add the msg to the msg history
+    # st.session_state['message_history'].append({"role": "assistant", "content": ai_message})
 
     # Display assistant response in chat message container
     with st.chat_message("assistant"):
-        st.text(ai_message)
+
+       ai_message = st.write_stream(
+           message_chunk.content for message_chunk, metadata in chatbot.stream(
+               {"messages": [HumanMessage(content=user_input)]},
+               config=CONFIG,
+                stream_mode="messages"
+
+       ))
+       st.session_state['message_history'].append({"role": "assistant", "content": ai_message})
+
+
